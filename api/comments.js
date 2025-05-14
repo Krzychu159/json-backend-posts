@@ -1,29 +1,17 @@
-const fs = require("fs");
-const path = require("path");
+export default function handler(req, res) {
+  const comments = [
+    {
+      postId: 96,
+      id: 476,
+      name: "quia hic adipisci modi fuga aperiam",
+      email: "Amely.Kunde@rodrigo.co.uk",
+      body: "officia quas aut culpa eum\neaque quia rem unde ea quae reiciendis omnis\nexcepturi nemo est vel sequi accusantium tenetur at earum\net rerum quisquam temporibus cupiditate",
+    },
+  ];
 
-// Ścieżka do pliku comments.json
-const commentsFilePath = path.join(__dirname, "../comments.json");
-
-module.exports = (req, res) => {
-  fs.readFile(commentsFilePath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading comments file:", err);
-      return res.status(500).json({ message: "Error reading comments file." });
-    }
-
-    try {
-      const comments = JSON.parse(data);
-      const postId = parseInt(req.query.postId); // Pobieramy postId z zapytania URL
-
-      // Filtrujemy komentarze, aby zwrócić tylko te powiązane z konkretnym postem
-      const filteredComments = comments.filter(
-        (comment) => comment.postId === postId
-      );
-
-      res.status(200).json(filteredComments);
-    } catch (parseErr) {
-      console.error("Error parsing comments file:", parseErr);
-      res.status(500).json({ message: "Error parsing comments file." });
-    }
-  });
-};
+  if (req.method === "GET") {
+    return res.status(200).json(comments); // Zwrócenie komentarzy
+  } else {
+    return res.status(405).json({ message: "Method Not Allowed" });
+  }
+}

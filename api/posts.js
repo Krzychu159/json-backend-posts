@@ -1,22 +1,17 @@
-const fs = require("fs");
-const path = require("path");
+export default function handler(req, res) {
+  const posts = [
+    {
+      userId: 1,
+      id: 1,
+      title:
+        "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+      body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+    },
+  ];
 
-// Ścieżka do pliku data.json
-const postsFilePath = path.join(__dirname, "../data.json");
-
-module.exports = (req, res) => {
-  fs.readFile(postsFilePath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading data file:", err);
-      return res.status(500).json({ message: "Error reading data file." });
-    }
-
-    try {
-      const posts = JSON.parse(data);
-      res.status(200).json(posts);
-    } catch (parseErr) {
-      console.error("Error parsing data file:", parseErr);
-      res.status(500).json({ message: "Error parsing data file." });
-    }
-  });
-};
+  if (req.method === "GET") {
+    return res.status(200).json(posts); // Zwrócenie listy postów
+  } else {
+    return res.status(405).json({ message: "Method Not Allowed" });
+  }
+}
