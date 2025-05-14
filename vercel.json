@@ -2,9 +2,9 @@
   "version": 2,
   "builds": [{ "src": "api/*.js", "use": "@vercel/node" }],
   "routes": [
-    { "src": "/api/posts/(?<id>[^/]+)", "dest": "/api/posts.js" },
+    { "src": "/api/posts/(?<id>\\d+)", "dest": "/api/posts.js" },
     { "src": "/api/posts", "dest": "/api/posts.js" },
-    { "src": "/api/comments/(?<id>[^/]+)", "dest": "/api/comments.js" },
+    { "src": "/api/comments/(?<id>\\d+)", "dest": "/api/comments.js" },
     { "src": "/api/comments", "dest": "/api/comments.js" }
   ]
 }
