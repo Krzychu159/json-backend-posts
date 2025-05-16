@@ -609,17 +609,21 @@ let posts = [
   },
 ];
 
-export default function handler(req, res) {
-  // CORS HEADERS
+function setCorsHeaders(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+}
+
+export default function handler(req, res) {
+  setCorsHeaders(res);
 
   if (req.method === "OPTIONS") {
-    return res.status(200).end(); // Preflight
+    // Preflight request
+    return res.status(200).end();
   }
 
   const { method, url } = req;
@@ -629,10 +633,12 @@ export default function handler(req, res) {
   if (method === "GET") {
     if (id) {
       const post = posts.find((p) => p.id === id);
+      setCorsHeaders(res);
       return post
         ? res.status(200).json(post)
         : res.status(404).json({ message: "Post not found" });
     }
+    setCorsHeaders(res);
     return res.status(200).json(posts);
   }
 
@@ -640,26 +646,40 @@ export default function handler(req, res) {
     const newPost = req.body;
     newPost.id = posts.length ? Math.max(...posts.map((p) => p.id)) + 1 : 1;
     posts.push(newPost);
+    setCorsHeaders(res);
     return res.status(201).json(newPost);
   }
 
   if (method === "PUT") {
-    if (!id) return res.status(400).json({ message: "Missing post ID" });
+    if (!id) {
+      setCorsHeaders(res);
+      return res.status(400).json({ message: "Missing post ID" });
+    }
     const index = posts.findIndex((p) => p.id === id);
-    if (index === -1)
+    if (index === -1) {
+      setCorsHeaders(res);
       return res.status(404).json({ message: "Post not found" });
+    }
     posts[index] = { ...posts[index], ...req.body };
+    setCorsHeaders(res);
     return res.status(200).json(posts[index]);
   }
 
   if (method === "DELETE") {
-    if (!id) return res.status(400).json({ message: "Missing post ID" });
+    if (!id) {
+      setCorsHeaders(res);
+      return res.status(400).json({ message: "Missing post ID" });
+    }
     const index = posts.findIndex((p) => p.id === id);
-    if (index === -1)
+    if (index === -1) {
+      setCorsHeaders(res);
       return res.status(404).json({ message: "Post not found" });
+    }
     posts.splice(index, 1);
+    setCorsHeaders(res);
     return res.status(204).end();
   }
 
+  setCorsHeaders(res);
   return res.status(405).json({ message: "Method not allowed" });
 }
