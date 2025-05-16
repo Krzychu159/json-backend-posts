@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "middleware": true,
   "builds": [{ "src": "api/*.js", "use": "@vercel/node" }],
   "routes": [
     { "src": "/api/posts/(?<id>\\d+)", "dest": "/api/posts.js" },

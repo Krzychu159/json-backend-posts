@@ -1,3 +1,7 @@
+import Cors from "micro-cors";
+
+const cors = Cors();
+
 let posts = [
   {
     userId: 1,
@@ -609,19 +613,7 @@ let posts = [
   },
 ];
 
-export default function handler(req, res) {
-  // CORS HEADERS
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end(); // Preflight
-  }
-
+function handler(req, res) {
   const { method, url } = req;
   const match = url.match(/\/api\/posts\/?(\d+)?/);
   const id = match?.[1] ? parseInt(match[1]) : null;
@@ -663,3 +655,5 @@ export default function handler(req, res) {
 
   return res.status(405).json({ message: "Method not allowed" });
 }
+
+export default cors(handler);
