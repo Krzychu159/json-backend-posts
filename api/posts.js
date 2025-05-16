@@ -1,7 +1,15 @@
-import Cors from "micro-cors";
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
-const cors = Cors();
+const app = express();
+const PORT = 3000;
 
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// Dane przykładowe
 let posts = [
   {
     userId: 1,
@@ -613,47 +621,60 @@ let posts = [
   },
 ];
 
-async function handler(req, res) {
-  const { method, url } = req;
-  const match = url.match(/\/api\/posts\/?(\d+)?/);
-  const id = match?.[1] ? parseInt(match[1]) : null;
+// Route handler
+app.all("/api/posts/:id?", (req, res) => {
+  const { method, body, params } = req;
+  const id = params.id ? parseInt(params.id, 10) : null;
 
-  if (method === "GET") {
-    if (id) {
-      const post = posts.find((p) => p.id === id);
-      return post
-        ? res.status(200).json(post)
-        : res.status(404).json({ message: "Post not found" });
-    }
-    return res.status(200).json(posts);
+  switch (method) {
+    case "GET":
+      if (id !== null) {
+        const post = posts.find((p) => p.id === id);
+        return post
+          ? res.status(200).json(post)
+          : res.status(404).json({ message: "Post not found" });
+      }
+      return res.status(200).json(posts);
+
+    case "POST":
+      if (!body || typeof body !== "object") {
+        return res.status(400).json({ message: "Invalid post data" });
+      }
+      const newPost = {
+        ...body,
+        id: posts.length ? Math.max(...posts.map((p) => p.id)) + 1 : 1,
+      };
+      posts.push(newPost);
+      return res.status(201).json(newPost);
+
+    case "PUT":
+      if (id === null) {
+        return res.status(400).json({ message: "Missing post ID" });
+      }
+      const updateIndex = posts.findIndex((p) => p.id === id);
+      if (updateIndex === -1) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      posts[updateIndex] = { ...posts[updateIndex], ...body };
+      return res.status(200).json(posts[updateIndex]);
+
+    case "DELETE":
+      if (id === null) {
+        return res.status(400).json({ message: "Missing post ID" });
+      }
+      const deleteIndex = posts.findIndex((p) => p.id === id);
+      if (deleteIndex === -1) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      posts.splice(deleteIndex, 1);
+      return res.status(204).end();
+
+    default:
+      return res.status(405).json({ message: "Method not allowed" });
   }
+});
 
-  if (method === "POST") {
-    const newPost = req.body;
-    newPost.id = posts.length ? Math.max(...posts.map((p) => p.id)) + 1 : 1;
-    posts.push(newPost);
-    return res.status(201).json(newPost);
-  }
-
-  if (method === "PUT") {
-    if (!id) return res.status(400).json({ message: "Missing post ID" });
-    const index = posts.findIndex((p) => p.id === id);
-    if (index === -1)
-      return res.status(404).json({ message: "Post not found" });
-    posts[index] = { ...posts[index], ...req.body };
-    return res.status(200).json(posts[index]);
-  }
-
-  if (method === "DELETE") {
-    if (!id) return res.status(400).json({ message: "Missing post ID" });
-    const index = posts.findIndex((p) => p.id === id);
-    if (index === -1)
-      return res.status(404).json({ message: "Post not found" });
-    posts.splice(index, 1);
-    return res.status(204).end();
-  }
-
-  return res.status(405).json({ message: "Method not allowed" });
-}
-
-export default cors(handler);
+// Uruchomienie serwera
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
