@@ -613,7 +613,7 @@ let posts = [
   },
 ];
 
-function handler(req, res) {
+async function handler(req, res) {
   const { method, url } = req;
   const match = url.match(/\/api\/posts\/?(\d+)?/);
   const id = match?.[1] ? parseInt(match[1]) : null;
