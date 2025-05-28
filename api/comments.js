@@ -1380,11 +1380,14 @@ export default function handler(req, res) {
   if (method === "GET") {
     if (id) {
       const comment = comments.find((c) => c.id === id);
-      return comment
-        ? res.status(200).json(comment)
-        : res.status(404).json({ message: "Comment not found" });
+      if (!comment) {
+        return res.status(404).json({ message: "Comment not found" });
+      }
+      res.setHeader("Content-Type", "application/json");
+      return res.status(200).send(JSON.stringify(comment, null, 2));
     }
-    return res.status(200).json(comments);
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).send(JSON.stringify(comments, null, 2));
   }
 
   if (method === "POST") {
