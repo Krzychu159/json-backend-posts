@@ -198,11 +198,14 @@ export default function handler(req, res) {
   if (method === "GET") {
     if (id) {
       const post = posts.find((p) => p.id === id);
-      return post
-        ? res.status(200).json(post)
-        : res.status(404).json({ message: "Post not found" });
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      res.setHeader("Content-Type", "application/json");
+      return res.status(200).send(JSON.stringify(post, null, 2));
     }
-    return res.status(200).json(posts);
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).send(JSON.stringify(posts, null, 2));
   }
 
   // POST /api/posts/:id/like
