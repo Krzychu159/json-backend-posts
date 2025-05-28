@@ -250,6 +250,4 @@ export default function handler(req, res) {
 
   return res.status(405).json({ message: "Method not allowed" });
 }
-res.json(data); // Express automatycznie formatuje
-// lub jeśli robisz JSON.stringify sam:
-JSON.stringify(data, null, 2);
+res.json(data);
